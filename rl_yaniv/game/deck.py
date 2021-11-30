@@ -12,8 +12,8 @@ class Deck:
         shuffle(self.cards)
 
     def pop_from_deck(self) -> YanivCard:
-        if self.cards == []:
-            DeckException('The card deck was already empty')
+        if len(self.cards) == 0:
+            raise DeckException('The card deck was already empty')
         return self.cards.pop()
 
     def is_empty(self) -> bool:

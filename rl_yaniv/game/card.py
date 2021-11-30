@@ -1,5 +1,5 @@
 
-from typing import Dict
+from typing import Dict, Optional
 from rlcard.games.base import Card
 
 class YanivCard(Card):
@@ -15,3 +15,12 @@ class YanivCard(Card):
             self.points = 0
         else:
             self.points = self.CARD_POINTS[rank]
+
+        self.rank_number = self.get_rank_number()
+
+    def get_rank_number(self) -> Optional[int]:
+        """Returns the index number of a card in the card ranking."""
+        if self.rank:
+            return list(self.CARD_POINTS.keys()).index(self.rank)
+        else: 
+            return None

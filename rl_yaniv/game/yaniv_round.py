@@ -5,12 +5,14 @@ from typing import Dict, List, Optional
 from rl_yaniv.game.card import YanivCard
 from rl_yaniv.game.deck import Deck
 from rl_yaniv.game.player import Player
+from rl_yaniv.exceptions import DeckException
 
 
 class YanivRound:
 
     SUIT_LIST: List[str] = ['S', 'H', 'D', 'C']
     RANK_LIST:  List[str]= ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K']
+    SUITS_SYMBOLS_UTF_8: List[bin] = [0x1F0D1, 0x1F0C1, 0x1F0B1, 0x1F0A1]
     YANIV_TARGET_POINTS: int = 5  # below or equal can call Yaniv
 
     def __init__(self, players: Dict[int, Player], last_round_winner: Optional[int]=None) -> None:
@@ -44,7 +46,14 @@ class YanivRound:
 
     def draw_deck_card(self) -> None:
         self.logger.info(f'Player with id {self._current_player_id} draws a card from the deck')
-        drawn_card = self.deck.pop_from_deck()
+        try:
+            drawn_card = self.deck.pop_from_deck()
+        except DeckException:
+            self.logger.info('Deck is empty: reshuffling pile')
+            self.deck.cards = self.dump_pile[:-1]
+            self.dump_pile = [self.dump_pile[-1]]
+            self.deck.shuffle()
+            drawn_card = self.deck.pop_from_deck()
         self.players[self._current_player_id].cards[drawn_card.get_index()] = drawn_card
 
     def pickup_pile_top_card(self) -> None:

@@ -14,21 +14,27 @@ class Yaniv:
     PUNISHMENT_SCORE: int = 30
     MAX_HALVATION_SCORE: int = 100
 
-    def __init__(self, num_players: int=4) -> None:
+    def __init__(self, players: List[Player]) -> None:
 
-        self._num_players: int = num_players
-        self.players: OrderedDict[int, Player] = OrderedDict()
+        self._num_players: int = len(players)
+        self.players: OrderedDict[int, Player] = OrderedDict((player.player_id, player) for player in players)
         
         self.yaniv_round: Optional[YanivRound] = None
         self.last_round_winner: Optional[int] = None
 
     def reset(self) -> None:
-        self.players = OrderedDict((player_id, Player(player_id)) for player_id in range(self._num_players))
+        for player in self.players.values():
+            player.reset()
         self.last_round_winner = None
 
         self.reset_round()
 
+    def reset_player_cards(self):
+        for player in self.players.values():
+            player.reset_cards()
+
     def reset_round(self) -> None:
+        self.reset_player_cards()
         self.yaniv_round = YanivRound(self.players, self.last_round_winner)
         self.yaniv_round.deal()
         self.yaniv_round.start()
@@ -48,6 +54,8 @@ class Yaniv:
             winner, *losers = self.yaniv_round.yaniv()
             winner_id, _ = winner
             current_player = self.get_current_player()
+
+            # punish player that called yaniv for asaf situation
             if winner_id != current_player.player_id:
                 current_player.game_score += self.PUNISHMENT_SCORE
 
@@ -63,11 +71,11 @@ class Yaniv:
         if isinstance(action, EndTurn):
             self.yaniv_round.end_player_turn()
 
-    def get_current_player(self) -> int:
+    def get_current_player(self) -> Player:
         return self.players[self.yaniv_round._current_player_id]
 
     def get_num_players(self) -> int:
         return self._num_players
 
     def is_over(self) -> bool:
-        return any([player.game_score > self.MAX_HALVATION_SCORE for _, player in self.players.items()])
+        return any([player.game_score > self.MAX_HALVATION_SCORE for player in self.players.values()])
