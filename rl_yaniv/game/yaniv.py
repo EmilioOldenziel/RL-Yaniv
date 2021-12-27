@@ -22,6 +22,8 @@ class Yaniv:
         self.yaniv_round: Optional[YanivRound] = None
         self.last_round_winner: Optional[int] = None
 
+        self.num_rounds = 0
+
     def reset(self) -> None:
         for player in self.players.values():
             player.reset()
@@ -43,14 +45,16 @@ class Yaniv:
 
         if isinstance(action, PickupDeckCard):
             self.yaniv_round.draw_deck_card()
+            self.yaniv_round.end_player_turn()
 
-        if isinstance(action, PickupPileTopCard):
+        elif isinstance(action, PickupPileTopCard):
             self.yaniv_round.pickup_pile_top_card()
+            self.yaniv_round.end_player_turn()
 
-        if isinstance(action, ThrowCard):
+        elif isinstance(action, ThrowCard):
             self.yaniv_round.throw_card(card_index=action.card_index)
 
-        if isinstance(action, CallYaniv):
+        elif isinstance(action, CallYaniv):
             winner, *losers = self.yaniv_round.yaniv()
             winner_id, _ = winner
             current_player = self.get_current_player()
@@ -68,11 +72,11 @@ class Yaniv:
             self.last_round_winner = winner_id
             self.reset_round()
 
-        if isinstance(action, EndTurn):
-            self.yaniv_round.end_player_turn()
-
     def get_current_player(self) -> Player:
         return self.players[self.yaniv_round._current_player_id]
+
+    def get_player(self, player_id: int) -> Optional[Player]:
+        return self.players.get(player_id)
 
     def get_num_players(self) -> int:
         return self._num_players

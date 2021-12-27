@@ -10,16 +10,20 @@ class Action(ABC):
 class CallYaniv(Action):
     pass
 
-class PickupDeckCard(Action):
+
+class PickupAction(Action):
     pass
 
-class PickupPileTopCard(Action):
+class PickupDeckCard(PickupAction):
+    pass
+
+class PickupPileTopCard(PickupAction):
     pass
 
 class ThrowCard(Action):
-    def __init__(self, card_index: int) -> None:
+    def __init__(self, card_index: str) -> None:
         super().__init__()
-        
+
         self.card_index = card_index
 
     def __str__(self) -> str:

@@ -76,6 +76,7 @@ class YanivRound:
         return self.dump_pile[-1]
 
     def end_player_turn(self) -> None:
+        
         self._current_player_id = (self._current_player_id + 1) % self.get_num_players()
 
     def get_current_player_id(self) -> int:

@@ -18,3 +18,7 @@ class TestDeck:
             except DeckException:
                 break
         assert total_points == 340
+
+    def test_index_numbers(self):
+        deck = Deck.init_54_deck()
+        assert list(sorted([c.index_number for c in deck.cards])) == list(range(54))
