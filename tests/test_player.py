@@ -1,8 +1,6 @@
-from rl_yaniv.game.deck import Deck
-from rl_yaniv.game.player import Player
-from rl_yaniv.exceptions import DeckException
-
+from rl_yaniv.game.player import RandomPlayer
 class TestDeck:
 
     def test_init_Player(self):
-        player = Player(player_id=1)
+        player = RandomPlayer(player_id=1)
+        assert player

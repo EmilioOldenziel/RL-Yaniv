@@ -1,7 +1,7 @@
 from typing import List, Optional
 from collections import OrderedDict
 
-from rl_yaniv.game.actions import (Action, EndTurn, PickupDeckCard,
+from rl_yaniv.game.actions import (Action, PickupDeckCard,
                                    PickupPileTopCard, ThrowCard, CallYaniv)
 from rl_yaniv.game.player import Player
 from rl_yaniv.game.yaniv_round import YanivRound
@@ -25,14 +25,15 @@ class Yaniv:
         self.num_rounds = 0
 
     def reset(self) -> None:
-        for player in self.players.values():
+        for player in self.get_players():
             player.reset()
         self.last_round_winner = None
 
         self.reset_round()
+        self.num_rounds += 1
 
     def reset_player_cards(self):
-        for player in self.players.values():
+        for player in self.get_players():
             player.reset_cards()
 
     def reset_round(self) -> None:
@@ -52,7 +53,7 @@ class Yaniv:
             self.yaniv_round.end_player_turn()
 
         elif isinstance(action, ThrowCard):
-            self.yaniv_round.throw_card(card_index=action.card_index)
+            self.yaniv_round.throw_card(card_index=action.card.index_number)
 
         elif isinstance(action, CallYaniv):
             winner, *losers = self.yaniv_round.yaniv()
@@ -77,9 +78,20 @@ class Yaniv:
 
     def get_player(self, player_id: int) -> Optional[Player]:
         return self.players.get(player_id)
+    
+    def get_players(self) -> List[Player]:
+        return self.players.values()
 
     def get_num_players(self) -> int:
         return self._num_players
 
     def is_over(self) -> bool:
         return any([player.game_score > self.MAX_HALVATION_SCORE for player in self.players.values()])
+
+    def render(self) -> None:
+        """
+        Render in console by printing
+        """
+        for player in self.get_players():
+            print(f"Player: {player.player_id} points: {player.get_points()}")
+            print(" ".join([card.render() for card in player.get_cards()]))

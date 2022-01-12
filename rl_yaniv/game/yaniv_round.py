@@ -24,6 +24,8 @@ class YanivRound:
         self.deck: Deck = Deck.init_54_deck()
         self.dump_pile: List[YanivCard] = []
 
+        self.previous_thrown_cards: List[YanivCard] = []
+
         self._current_player_id: Optional[int] = None  # starting player is not selected yet
 
     def deal(self) -> None:
@@ -54,19 +56,22 @@ class YanivRound:
             self.dump_pile = [self.dump_pile[-1]]
             self.deck.shuffle()
             drawn_card = self.deck.pop_from_deck()
-        self.players[self._current_player_id].cards[drawn_card.get_index()] = drawn_card
+        self.get_current_player().add_card(drawn_card)
 
     def pickup_pile_top_card(self) -> None:
         self.logger.info(f'Player with id {self._current_player_id} draws the dump pile top card')
-        picked_card = self.dump_pile.pop()
-        self.players[self._current_player_id].cards[picked_card.get_index()] = picked_card
+        picked_card = self.dump_pile.pop(-1 * len(self.previous_thrown_cards))
+
+        self.get_current_player().add_card(picked_card)
 
     def pickup_pile_bottom_card(self) -> None:
         NotImplementedError
 
     def throw_card(self, card_index) -> None:
-        self.logger.info(f'Player with id {self._current_player_id} throws ')
-        self.dump_pile.append(self.players[self._current_player_id].cards.pop(card_index))
+        logging.info(f'Player with id {self._current_player_id} throws {card_index}')
+        card = self.get_current_player().cards.pop(card_index)
+        self.dump_pile.append(card)
+        self.previous_thrown_cards.append(card)
 
     def yaniv(self) -> Dict[int,int]:
         player_scores = {player_id: player.get_points() for player_id, player in self.players.items()}
@@ -76,11 +81,14 @@ class YanivRound:
         return self.dump_pile[-1]
 
     def end_player_turn(self) -> None:
-        
+        self.previous_thrown_cards = []
         self._current_player_id = (self._current_player_id + 1) % self.get_num_players()
 
     def get_current_player_id(self) -> int:
         return self._current_player_id
+
+    def get_current_player(self) -> Player:
+        return self.players[self.get_current_player_id()]
 
     def get_num_players(self) -> int:
         return len(self.players)

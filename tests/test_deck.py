@@ -22,3 +22,8 @@ class TestDeck:
     def test_index_numbers(self):
         deck = Deck.init_54_deck()
         assert list(sorted([c.index_number for c in deck.cards])) == list(range(54))
+
+    def test_card_to_unicode(self):
+        deck = Deck.init_54_deck()
+        for c in deck.cards:
+            print(c)

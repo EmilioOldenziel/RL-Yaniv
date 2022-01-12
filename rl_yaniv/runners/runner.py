@@ -13,12 +13,12 @@ start_time = time.time()
 while not yaniv.is_over():
     current_player = yaniv.get_current_player()
     current_player.step(yaniv)
-    # print(f"Player {current_player.player_id} has: {current_player.get_points()}  - {current_player.last_action} - Cards: {len(current_player.cards)}")
+    yaniv.render()
 
     counter += 1
 execution_time = time.time() - start_time
 print(f"rounds {counter/execution_time} per second")
-winner, *losers = (sorted(yaniv.players.values(), key=lambda p: p.game_score))
+winner, *losers = (sorted(yaniv.get_players(), key=lambda p: p.game_score))
 print(f"Winner: {winner.player_id} with {winner.game_score} after {counter} rounds")
 for loser in losers:
     print(f"Loser: {loser.player_id} with {loser.game_score}")
