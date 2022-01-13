@@ -1,2 +1,4 @@
 rlcard==1.0.4
 gym==0.21.0
+ray==1.9.2
+ray[rllib]

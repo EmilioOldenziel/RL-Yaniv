@@ -65,9 +65,10 @@ class YanivPlayer(Player):
 
         legal_actions: List[Action] = []
 
-        if self.last_action is None and self.get_points() < 6:
-            # yaniv
-            legal_actions.append(CallYaniv())
+        if self.last_action is None:
+            if self.get_points() < 6:
+                # yaniv
+                legal_actions.append(CallYaniv())
 
             # must throw a card from hand
             for card in self.get_cards():

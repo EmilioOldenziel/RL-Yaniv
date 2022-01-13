@@ -5,18 +5,20 @@ from rl_yaniv.envs.yaniv import YanivEnv
 
 # Configure the algorithm.
 config = {
-    # Use 2 environment workers (aka "rollout workers") that parallelly
-    # collect samples from their own environment clone(s).
-    "num_workers": 4,
-    # Change this to "framework: torch", if you are using PyTorch.
-    # Also, use "framework: tf2" for tf2.x eager execution.
+    "num_workers": 10,
+    "num_envs_per_worker": 2,
+    "train_batch_size": 600,
+    "lr": 0.001,
+    "gamma": 0.9,
+    "num_gpus": 1,
+
     "framework": "torch",
-    # Tweak the default model provided automatically by RLlib,
-    # given the environment's observation- and action spaces.
+
     "model": {
-        "fcnet_hiddens": [64, 64],
+        "fcnet_hiddens": [64],
         "fcnet_activation": "relu",
     },
+    "horizon": 1000,
     # Set up a separate evaluation worker set for the
     # `trainer.evaluate()` call after training (see below).
     "evaluation_num_workers": 1,
