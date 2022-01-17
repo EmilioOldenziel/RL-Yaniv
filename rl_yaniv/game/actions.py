@@ -32,13 +32,13 @@ class ThrowCard(Action):
 
     def __eq__(self, other):
         if isinstance(other, ThrowCard):
-            return self.card.card_index == other.card.card_index
+            return self.card.index_number == other.card.index_number
         else:
             # don't attempt to compare against unrelated types
             return NotImplemented
 
     def __str__(self) -> str:
-        return f"{super().__str__()}_{self.card.card_index}"
+        return f"{super().__str__()}_{self.card.index_number}"
 
 class DoNothing(Action):
     pass

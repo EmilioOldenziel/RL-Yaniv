@@ -23,7 +23,7 @@ config = {
         "custom_model": "pa_model",
         "vf_share_layers": True,
     },
-    "horizon": 500,
+    "horizon": 1000,
     # Set up a separate evaluation worker set for the
     # `trainer.evaluate()` call after training (see below).
     "evaluation_num_workers": 1,

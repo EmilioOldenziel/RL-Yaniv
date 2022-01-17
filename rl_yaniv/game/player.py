@@ -59,7 +59,7 @@ class Player(ABC):
         """
         return self.cards.values()
 
-class YanivPlayer(Player):
+class YanivPlayer(Player, ABC):
 
     def get_legal_actions(self) -> List[Action]:
 
@@ -75,10 +75,21 @@ class YanivPlayer(Player):
                 legal_actions.append(ThrowCard(card))
 
         elif isinstance(self.last_action, ThrowCard):
+
+            previous_thrown_cards = [a.card for a in self.previous_actions if isinstance(a, ThrowCard)]
+
             # other of the same rank
             for card in self.get_cards():
-                if self.last_action.card.rank == card.rank:
+                if all([thrown_card.rank == card.rank for thrown_card in previous_thrown_cards]):
                     legal_actions.append(ThrowCard(card))
+
+            for card in self.get_cards():
+                if card.suit == self.last_action.card.suit and card.rank_number == self.last_action.card.rank_number+1:
+                    if len(previous_thrown_cards) > 1 and card.suit == previous_thrown_cards[-2].suit and card.rank_number == previous_thrown_cards[-2].rank_number+2:
+                        return [ThrowCard(card)]
+
+                    if len(previous_thrown_cards) == 1 and any([card.suit == other_card.suit and card.rank_number+1 == other_card.rank_number for other_card in self.get_cards()]):
+                        legal_actions.append(ThrowCard(card))
 
             # pickup deck or pile card
             legal_actions += [PickupDeckCard(), PickupPileTopCard()]
