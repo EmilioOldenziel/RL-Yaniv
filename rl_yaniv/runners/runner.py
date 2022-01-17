@@ -13,7 +13,7 @@ start_time = time.time()
 while not yaniv.is_over():
     current_player = yaniv.get_current_player()
     current_player.step(yaniv)
-    yaniv.render()
+    # yaniv.render()
 
     counter += 1
 execution_time = time.time() - start_time

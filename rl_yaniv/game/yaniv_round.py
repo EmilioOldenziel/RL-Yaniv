@@ -82,6 +82,7 @@ class YanivRound:
 
     def end_player_turn(self) -> None:
         self.previous_thrown_cards = []
+        self.get_current_player().end_turn()
         self._current_player_id = (self._current_player_id + 1) % self.get_num_players()
 
     def get_current_player_id(self) -> int:
