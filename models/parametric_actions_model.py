@@ -1,9 +1,9 @@
 from gym.spaces import Box
 
-from ray.rllib.agents.dqn.distributional_q_tf_model import \
+from ray.rllib.agents.dqn.distributional_q_tf_model import 
     DistributionalQTFModel
-from ray.rllib.agents.dqn.dqn_torch_model import \
-    DQNTorchModel
+from ray.rllib.agents.dqn.dqn_torch_model import DQNTorchModel
+
 from ray.rllib.models.tf.fcnet import FullyConnectedNetwork
 from ray.rllib.models.torch.fcnet import FullyConnectedNetwork as TorchFC
 from ray.rllib.utils.torch_utils import FLOAT_MIN, FLOAT_MAX
@@ -50,7 +50,7 @@ class TorchParametricActionsModel(DQNTorchModel):
         # Mask out invalid actions (use -inf to tag invalid).
         # These are then recognized by the EpsilonGreedy exploration component
         # as invalid actions that are not to be chosen.
-        inf_mask = torch.clamp(torch.log(action_mask), FLOAT_MIN, FLOAT_MAX)
+        inf_mask = torch.log(action_mask)
 
         return action_logits + inf_mask, state
 
@@ -102,14 +102,12 @@ class TorchParametricActionsEmbeddingsModel(DQNTorchModel):
         # Mask out invalid actions (use -inf to tag invalid).
         # These are then recognized by the EpsilonGreedy exploration component
         # as invalid actions that are not to be chosen.
-        inf_mask = torch.clamp(torch.log(action_mask), FLOAT_MIN, FLOAT_MAX)
+        inf_mask = torch.clamp(torch.log(action_mask))
 
         return action_logits + inf_mask, state
 
     def value_function(self):
         return self.action_embed_model.value_function()
-
-
 
 
 class ParametricActionsModelThatLearnsEmbeddings(DistributionalQTFModel):
