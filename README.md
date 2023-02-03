@@ -1,5 +1,7 @@
 # RL-Yaniv
 
+The game of Yaniv implemented as a Gymnasium environment to be used for Reinforcement Learning.
+Ray RLLib is used for training agents using PPO. ParametricActions are used is for action embeddings.
 
 ## Deck
 
