@@ -1,16 +1,35 @@
 from typing import List, Optional
 from collections import OrderedDict
 
-from rl_yaniv.game.actions import (Action, PickupDeckCard,
-                                   PickupPileTopCard, ThrowCard, CallYaniv)
+from rl_yaniv.game.actions import (
+    Action,
+    PickupDeckCard,
+    PickupPileTopCard,
+    ThrowCard,
+    CallYaniv,
+)
 from rl_yaniv.game.player import Player
 from rl_yaniv.game.yaniv_round import YanivRound
 
 
 class Yaniv:
 
-    SUIT_LIST: List[str] = ['S', 'H', 'D', 'C']
-    RANK_LIST:  List[str]= ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K']
+    SUIT_LIST: List[str] = ["S", "H", "D", "C"]
+    RANK_LIST: List[str] = [
+        "A",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "T",
+        "J",
+        "Q",
+        "K",
+    ]
     PUNISHMENT_SCORE: int = 30
     MAX_HALVATION_SCORE: int = 100
 
@@ -18,7 +37,7 @@ class Yaniv:
 
         self._num_players: int = len(players)
         self.players: OrderedDict[int, Player] = OrderedDict((player.player_id, player) for player in players)
-        
+
         self.yaniv_round: Optional[YanivRound] = None
         self.last_round_winner: Optional[int] = None
 
@@ -78,7 +97,7 @@ class Yaniv:
 
     def get_player(self, player_id: int) -> Optional[Player]:
         return self.players.get(player_id)
-    
+
     def get_players(self) -> List[Player]:
         return self.players.values()
 

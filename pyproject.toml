@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "rl-yaniv"
+version = "0.1.0"
+description = ""
+authors = ["Emilio Oldenziel"]
+readme = "README.md"
+packages = [{include = "rl_yaniv"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+rlcard = "^1.2.0"
+ray = {extras = ["rllib"], version = "^2.9.0"}
+gymnasium = "0.28.1"
+torch = {version = "^2.1.2+cpu", source = "torch-cpu"}
+
+
+[[tool.poetry.source]]
+name = "torch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+default = false
+secondary = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

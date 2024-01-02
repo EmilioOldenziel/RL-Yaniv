@@ -1,16 +1,21 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 import numpy as np
-from gym import Env, spaces
-from rl_yaniv.game.actions import (CallYaniv, PickupDeckCard,
-                                   PickupPileTopCard, ThrowCard)
+from gymnasium import Env, spaces
+from rl_yaniv.game.actions import (
+    CallYaniv,
+    PickupDeckCard,
+    PickupPileTopCard,
+    ThrowCard,
+)
 from rl_yaniv.game.player import Player, HighThrowPlayer, RLPLayer
 from rl_yaniv.game.yaniv import Yaniv
 
 
 class YanivEnv(Env):
-    
-    def __init__(self, env_config=None) -> None:
+    metadata = {"render_modes": ["human"]}
+
+    def __init__(self, render_mode=None, env_config=None) -> None:
         self.yaniv = Yaniv(players=[RLPLayer(player_id=0), HighThrowPlayer(player_id=1)])
         self.yaniv.reset()
 
@@ -19,16 +24,18 @@ class YanivEnv(Env):
         # 54 cards binary mask (your cards)
         # 54 cards one-hot (top pile card)
 
-        self.observation_space = spaces.Dict({
-            'observation': spaces.MultiBinary((2, 54)),
-            'points': spaces.Box(low=0, high=50, shape=(1,), dtype=np.int8),
-            #'scores': spaces.Box(low=0, high=150, shape=(2,), dtype=np.int16),
-            'action_mask': spaces.MultiBinary((57,))
-        })
+        self.observation_space = spaces.Dict(
+            {
+                "observation": spaces.MultiBinary((2, 54)),
+                "points": spaces.Box(low=0, high=50, shape=(1,), dtype=np.int8),
+                #'scores': spaces.Box(low=0, high=150, shape=(2,), dtype=np.int16),
+                "action_mask": spaces.MultiBinary((57,)),
+            }
+        )
 
         self.reward = 0
 
-    def reset(self) -> Dict[str, np.array]:
+    def reset(self, seed=None, options=None) -> Tuple[Dict[str, np.array], Dict]:
         self.yaniv.reset()
         rl_player = self.yaniv.get_player(0)
 
@@ -37,7 +44,7 @@ class YanivEnv(Env):
             current_player.step(self.yaniv)
             current_player = self.yaniv.get_current_player()
 
-        return self._get_state(rl_player)
+        return self._get_state(rl_player), {}
 
     def _get_state(self, rl_player: Player) -> Dict[str, np.array]:
         observations = np.zeros((2, 54), dtype=np.int8)
@@ -47,32 +54,32 @@ class YanivEnv(Env):
 
         # top card observation one-hot
         top_card = self.yaniv.yaniv_round.get_pile_top_card()
-        observations[1,top_card.index_number] = 1
+        observations[1, top_card.index_number] = 1
 
         return {
-            'observation': observations,
-            'points': np.array([rl_player.get_points()], dtype=np.int8),
+            "observation": observations,
+            "points": np.array([rl_player.get_points()], dtype=np.int8),
             # 'scores': np.array([player.game_score for player in self.yaniv.get_players()], dtype=np.int16),
-            'action_mask': self._get_action_mask(rl_player)
+            "action_mask": self._get_action_mask(rl_player),
         }
 
     def _get_reward(self, action: int) -> float:
         """
-            win round +1
-            lose round -1
-            invalid action -1
-            win game +10
+        win round +1
+        lose round -1
+        invalid action -1
+        win game +10
         """
         # check if game is won
         if self.yaniv.is_over():
             winning_player, *losers = sorted(self.yaniv.get_players(), key=lambda p: p.game_score)
             if self.yaniv.get_current_player().player_id == winning_player.player_id:
-                return 25
+                return 10
             else:
-                return -25
+                return -10
 
-        if action == 0: # action was calling yaniv
-            if self.yaniv.last_round_winner == 0: # round was won by agent
+        if action == 0:  # action was calling yaniv
+            if self.yaniv.last_round_winner == 0:  # round was won by agent
                 return 1
             else:
                 return -1
@@ -87,7 +94,7 @@ class YanivEnv(Env):
 
             if legal_actions == []:
                 print("turn but no legal actions")
-        
+
             if CallYaniv() in legal_actions:
                 action_mask[0] = 1
             elif PickupPileTopCard() in legal_actions:
@@ -113,7 +120,7 @@ class YanivEnv(Env):
 
         # took invalid action, game is corrupt.
         if action not in np.argwhere(last_legal_actions):
-            return self._get_state(rl_player), -1, True, {}
+            return self._get_state(rl_player), -1, False, True, {}
 
         # execute action
         current_player.step(self.yaniv, action)
@@ -130,8 +137,8 @@ class YanivEnv(Env):
 
         info = {}
 
-        done = self.yaniv.is_over()
-        return observation, reward, done, info
+        terminated = self.yaniv.is_over()
+        return observation, reward, terminated, False, info
 
     def render(self):
         """

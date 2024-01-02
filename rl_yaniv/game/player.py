@@ -4,14 +4,18 @@ from itertools import groupby
 from random import choice, randint
 from typing import Iterable, List, Optional
 
-from rl_yaniv.game.actions import (Action, CallYaniv, PickupAction,
-                                   PickupDeckCard, PickupPileTopCard,
-                                   ThrowCard)
+from rl_yaniv.game.actions import (
+    Action,
+    CallYaniv,
+    PickupAction,
+    PickupDeckCard,
+    PickupPileTopCard,
+    ThrowCard,
+)
 from rl_yaniv.game.card import Card
 
 
 class Player(ABC):
-    
     def __init__(self, player_id) -> None:
         self.player_id = player_id
         self.cards: OrderedDict[str, Card] = OrderedDict()
@@ -21,7 +25,7 @@ class Player(ABC):
 
     def add_card(self, card: Card) -> None:
         self.cards[card.index_number] = card
-    
+
     def pop_card(self, card_index: int) -> Card:
         return self.cards.pop(card_index)
 
@@ -59,8 +63,8 @@ class Player(ABC):
         """
         return self.cards.values()
 
-class YanivPlayer(Player, ABC):
 
+class YanivPlayer(Player, ABC):
     def get_legal_actions(self) -> List[Action]:
 
         legal_actions: List[Action] = []
@@ -84,11 +88,23 @@ class YanivPlayer(Player, ABC):
                     legal_actions.append(ThrowCard(card))
 
             for card in self.get_cards():
-                if card.suit == self.last_action.card.suit and card.rank_number == self.last_action.card.rank_number+1:
-                    if len(previous_thrown_cards) > 1 and card.suit == previous_thrown_cards[-2].suit and card.rank_number == previous_thrown_cards[-2].rank_number+2:
+                if (
+                    card.suit == self.last_action.card.suit
+                    and card.rank_number == self.last_action.card.rank_number + 1
+                ):
+                    if (
+                        len(previous_thrown_cards) > 1
+                        and card.suit == previous_thrown_cards[-2].suit
+                        and card.rank_number == previous_thrown_cards[-2].rank_number + 2
+                    ):
                         return [ThrowCard(card)]
 
-                    if len(previous_thrown_cards) == 1 and any([card.suit == other_card.suit and card.rank_number+1 == other_card.rank_number for other_card in self.get_cards()]):
+                    if len(previous_thrown_cards) == 1 and any(
+                        [
+                            card.suit == other_card.suit and card.rank_number + 1 == other_card.rank_number
+                            for other_card in self.get_cards()
+                        ]
+                    ):
                         legal_actions.append(ThrowCard(card))
 
             # pickup deck or pile card
@@ -100,11 +116,12 @@ class YanivPlayer(Player, ABC):
 class RandomPlayer(YanivPlayer):
     """
 
-        Player that 
-        - Calls Yaniv when possible.
-        - Picks up from deck or pile randomly.
-        - Trows a random single card. 
+    Player that
+    - Calls Yaniv when possible.
+    - Picks up from deck or pile randomly.
+    - Trows a random single card.
     """
+
     def step(self, yaniv) -> None:
 
         # Call Yaniv
@@ -117,7 +134,7 @@ class RandomPlayer(YanivPlayer):
                 action = ThrowCard(card=choice(list(self.get_cards())))
         # Pickup
         elif isinstance(self.last_action, ThrowCard):
-            if randint(0,1): # random pickup Deck card or Pile top card
+            if randint(0, 1):  # random pickup Deck card or Pile top card
                 action = PickupDeckCard()
             else:
                 action = PickupPileTopCard()
@@ -128,13 +145,15 @@ class RandomPlayer(YanivPlayer):
         if isinstance(action, PickupAction) or isinstance(action, CallYaniv):
             self.end_turn()
 
+
 class HighCardPlayer(YanivPlayer):
     """
-        Player that always maximizes chance by:
-        - Calling yaniv when possible.
-        - Picking up from pile if card is below 4 points otherwise from deck.
-        - throwing the card with the most points.
+    Player that always maximizes chance by:
+    - Calling yaniv when possible.
+    - Picking up from pile if card is below 4 points otherwise from deck.
+    - throwing the card with the most points.
     """
+
     def step(self, yaniv) -> None:
 
         # Call Yaniv
@@ -158,13 +177,15 @@ class HighCardPlayer(YanivPlayer):
         if isinstance(action, PickupAction) or isinstance(action, CallYaniv):
             self.end_turn()
 
+
 class HighThrowPlayer(YanivPlayer):
     """
-        Player that always maximizes chance by:
-        - Calling yaniv when possible
-        - Picking up from pile if card is below 4 points otherwise from deck
-        - throwing the set of cards with the most points.
+    Player that always maximizes chance by:
+    - Calling yaniv when possible
+    - Picking up from pile if card is below 4 points otherwise from deck
+    - throwing the set of cards with the most points.
     """
+
     def step(self, yaniv) -> None:
 
         # Call Yaniv
@@ -174,7 +195,10 @@ class HighThrowPlayer(YanivPlayer):
                 action = CallYaniv()
             else:
                 # Throw a card from the equal rank set with the highest total score
-                rank_group_points = [(rank, sum([c.points for c in cards])) for rank, cards in groupby(self.get_cards(), lambda x: x.rank)]
+                rank_group_points = [
+                    (rank, sum([c.points for c in cards]))
+                    for rank, cards in groupby(self.get_cards(), lambda x: x.rank)
+                ]
                 (rank, points), *_ = sorted(rank_group_points, key=lambda x: x[1], reverse=True)
 
                 card, *_ = [c for c in self.get_cards() if c.rank == rank]
@@ -196,9 +220,10 @@ class HighThrowPlayer(YanivPlayer):
         if isinstance(action, PickupAction) or isinstance(action, CallYaniv):
             self.end_turn()
 
+
 class RLPLayer(YanivPlayer):
     """
-        Player where actions are taken by an RL Agent.
+    Player where actions are taken by an RL Agent.
     """
 
     def __init__(self, player_id) -> None:
@@ -214,9 +239,9 @@ class RLPLayer(YanivPlayer):
         """
 
         self.action_space = {
-             0: CallYaniv,
-             55: PickupDeckCard,
-             56: PickupPileTopCard,
+            0: CallYaniv,
+            55: PickupDeckCard,
+            56: PickupPileTopCard,
         }
 
     def step(self, yaniv, action_index: int) -> None:
