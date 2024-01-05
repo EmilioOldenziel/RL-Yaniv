@@ -1,43 +1,35 @@
-from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.logger import pretty_print
 from ray.rllib.models import ModelCatalog
 
-from rl_yaniv.envs.yaniv import YanivEnv
+from rl_yaniv.envs.yaniv_env import YanivEnv
 
-from models.parametric_actions_model import ParametricActionsModelThatLearnsEmbeddings
-ModelCatalog.register_custom_model("pa_model", ParametricActionsModelThatLearnsEmbeddings)
+from models.parametric_actions_model import TorchParametricActionsEmbeddingsModel
 
-# Configure the algorithm.
-config = {
-    "num_workers": 10,
-    "num_envs_per_worker": 2,
-    # "train_batch_size": 128,
-    # "lr": 0.001,
-    # "gamma": 0.9,
-    "num_gpus": 1,
+ModelCatalog.register_custom_model("pa_model", TorchParametricActionsEmbeddingsModel)
 
-    "framework": "tf2",
+config = (  # 1. Configure the algorithm,
+    PPOConfig()
+    .environment(YanivEnv)
+    .rollouts(num_rollout_workers=4)
+    .framework("torch")
+    .training(
+        model={
+            "custom_model": "pa_model",
+            "vf_share_layers": True,
+        }
+    )
+    .resources(num_gpus=0)
+    .evaluation(evaluation_num_workers=1)
+)
 
-    #"vf_loss_coeff": 1.0,
-    "model": {
-        "custom_model": "pa_model",
-        "vf_share_layers": True,
-    },
-    "horizon": 1000,
-    # Set up a separate evaluation worker set for the
-    # `trainer.evaluate()` call after training (see below).
-    "evaluation_num_workers": 1,
-    # Only for evaluation runs, render the env.
-}
+algo = config.build()  # 2. build the algorithm
 
-# Create our RLlib Trainer.
-trainer = PPOTrainer(env=YanivEnv, config=config)
-
-for i in range(1000):
-   # Perform one iteration of training the policy with PPO
-   result = trainer.train()
-   print(pretty_print(result))
+for i in range(100):
+    # Perform one iteration of training the policy with PPO
+    result = algo.train()
+    print(pretty_print(result))
 
 # Evaluate the trained Trainer (and render each timestep to the shell's
 # output).
-trainer.evaluate()
+algo.evaluate()

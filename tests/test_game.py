@@ -2,8 +2,8 @@ from rl_yaniv.game.yaniv import Yaniv, YanivRound
 from rl_yaniv.game.player import RandomPlayer
 from rl_yaniv.game.actions import PickupDeckCard, PickupPileTopCard, ThrowCard
 
-class TestGame:
 
+class TestGame:
     def test_init_yaniv_round(self):
         yaniv_round = YanivRound([])
         assert yaniv_round
@@ -24,7 +24,6 @@ class TestGame:
         yaniv.step(PickupDeckCard())
         assert len(yaniv.get_current_player().cards) == 5
 
-    
     def test_draw_pile_card(self):
         yaniv = Yaniv(players=[RandomPlayer(player_id=0), RandomPlayer(player_id=1)])
         assert yaniv

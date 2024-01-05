@@ -1,8 +1,8 @@
 from rl_yaniv.game.deck import Deck
-from rl_yaniv.exceptions import DeckException
+from rl_yaniv.game.exceptions import DeckException
+
 
 class TestDeck:
-
     def test_init_deck(self):
         deck = Deck.init_54_deck()
         assert deck

@@ -1,22 +1,25 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, TypeVar, Any
 
 import numpy as np
 from gymnasium import Env, spaces
+
 from rl_yaniv.game.actions import (
     CallYaniv,
     PickupDeckCard,
     PickupPileTopCard,
     ThrowCard,
 )
-from rl_yaniv.game.player import Player, HighThrowPlayer, RLPLayer
+from rl_yaniv.game.player import Player, HighThrowPlayer, RLPLayer, RandomPlayer
 from rl_yaniv.game.yaniv import Yaniv
+
+ObsType = TypeVar("ObsType")
 
 
 class YanivEnv(Env):
     metadata = {"render_modes": ["human"]}
 
     def __init__(self, render_mode=None, env_config=None) -> None:
-        self.yaniv = Yaniv(players=[RLPLayer(player_id=0), HighThrowPlayer(player_id=1)])
+        self.yaniv = Yaniv(players=[RLPLayer(player_id=0), RandomPlayer(player_id=1)])
         self.yaniv.reset()
 
         self.action_space = spaces.Discrete(57)
@@ -111,15 +114,14 @@ class YanivEnv(Env):
 
         return action_mask
 
-    def step(self, action: int):
+    def step(self, action: int) -> Tuple[ObsType, int, bool, bool, Dict[str, Any]]:
 
         current_player = self.yaniv.get_current_player()
 
+        # check for invalid action in previous step
         rl_player = self.yaniv.get_player(0)
         last_legal_actions = self._get_action_mask(rl_player)
-
-        # took invalid action, game is corrupt.
-        if action not in np.argwhere(last_legal_actions):
+        if action not in np.argwhere(last_legal_actions).flatten():
             return self._get_state(rl_player), -1, False, True, {}
 
         # execute action
