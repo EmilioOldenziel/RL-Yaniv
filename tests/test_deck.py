@@ -1,5 +1,5 @@
 from rl_yaniv.game.deck import Deck
-from rl_yaniv.exceptions import DeckException
+from rl_yaniv.game.exceptions import DeckException
 
 
 class TestDeck:

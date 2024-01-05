@@ -93,7 +93,7 @@ class Yaniv:
             self.reset_round()
 
     def get_current_player(self) -> Player:
-        return self.players[self.yaniv_round._current_player_id]
+        return self.players[self.yaniv_round.get_current_player_id()]
 
     def get_player(self, player_id: int) -> Optional[Player]:
         return self.players.get(player_id)

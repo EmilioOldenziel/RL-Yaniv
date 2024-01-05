@@ -5,28 +5,11 @@ from typing import Dict, List, Optional
 from rl_yaniv.game.card import YanivCard
 from rl_yaniv.game.deck import Deck
 from rl_yaniv.game.player import Player
-from rl_yaniv.exceptions import DeckException
+from rl_yaniv.game.exceptions import DeckException
 
 
 class YanivRound:
 
-    SUIT_LIST: List[str] = ["S", "H", "D", "C"]
-    RANK_LIST: List[str] = [
-        "A",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "T",
-        "J",
-        "Q",
-        "K",
-    ]
-    SUITS_SYMBOLS_UTF_8: List[bin] = [0x1F0D1, 0x1F0C1, 0x1F0B1, 0x1F0A1]
     YANIV_TARGET_POINTS: int = 5  # below or equal can call Yaniv
 
     def __init__(self, players: Dict[int, Player], last_round_winner: Optional[int] = None) -> None:

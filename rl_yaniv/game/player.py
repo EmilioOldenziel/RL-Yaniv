@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from itertools import groupby
-from random import choice, randint
 from typing import Iterable, List, Optional
+from random import sample
 
 from rl_yaniv.game.actions import (
     Action,
@@ -63,6 +63,11 @@ class Player(ABC):
         """
         return self.cards.values()
 
+    def render(self):
+        print("render called")
+        for card in self.get_cards():
+            print(card.render())
+
 
 class YanivPlayer(Player, ABC):
     def get_legal_actions(self) -> List[Action]:
@@ -71,7 +76,7 @@ class YanivPlayer(Player, ABC):
 
         if self.last_action is None:
             if self.get_points() < 6:
-                # yaniv
+                # Yaniv can be called
                 legal_actions.append(CallYaniv())
 
             # must throw a card from hand
@@ -79,14 +84,15 @@ class YanivPlayer(Player, ABC):
                 legal_actions.append(ThrowCard(card))
 
         elif isinstance(self.last_action, ThrowCard):
+            # posibiliy to throw more cards in set
+            previous_thrown_cards = [a.card for a in self.previous_actions]
 
-            previous_thrown_cards = [a.card for a in self.previous_actions if isinstance(a, ThrowCard)]
-
-            # other of the same rank
+            # if all previous thrown cards in this turn have the same rank, you can throw another card of the same rank
             for card in self.get_cards():
                 if all([thrown_card.rank == card.rank for thrown_card in previous_thrown_cards]):
                     legal_actions.append(ThrowCard(card))
 
+            # card of same suit next in rank sequence
             for card in self.get_cards():
                 if (
                     card.suit == self.last_action.card.suit
@@ -113,31 +119,35 @@ class YanivPlayer(Player, ABC):
         return legal_actions
 
 
-class RandomPlayer(YanivPlayer):
+class OptimizedRandomPlayer(YanivPlayer):
     """
-
     Player that
     - Calls Yaniv when possible.
-    - Picks up from deck or pile randomly.
-    - Trows a random single card.
+    - Plays Random legal action
+    """
+
+    def step(self, yaniv) -> None:
+        legal_actions = self.get_legal_actions()
+        if [True for a in legal_actions if isinstance(a, CallYaniv)]:
+            action = CallYaniv()
+        else:
+            action = sample(legal_actions, 1)[0]
+
+        yaniv.step(action)
+        self.previous_actions.append(action)
+
+        if isinstance(action, PickupAction) or isinstance(action, CallYaniv):
+            self.end_turn()
+
+
+class RandomPlayer(YanivPlayer):
+    """
+    Player that plays Random legal action
     """
 
     def step(self, yaniv) -> None:
 
-        # Call Yaniv
-        if self.last_action is None:
-            if self.get_points() < 6:
-                print(f"Player {self.player_id} calls Yaniv: {self.get_points()}")
-                action = CallYaniv()
-            else:
-                # Throw
-                action = ThrowCard(card=choice(list(self.get_cards())))
-        # Pickup
-        elif isinstance(self.last_action, ThrowCard):
-            if randint(0, 1):  # random pickup Deck card or Pile top card
-                action = PickupDeckCard()
-            else:
-                action = PickupPileTopCard()
+        action = sample(self.get_legal_actions(), 1)[0]
 
         yaniv.step(action)
         self.previous_actions.append(action)
@@ -159,7 +169,7 @@ class HighCardPlayer(YanivPlayer):
         # Call Yaniv
         if self.last_action is None:
             if self.get_points() < 6:
-                # print(f"Player {self.player_id} calls Yaniv: {self.get_points()}")
+                print(f"Player {self.player_id} calls Yaniv: {self.get_points()}")
                 action = CallYaniv()
             else:
                 # Throw
@@ -252,9 +262,6 @@ class RLPLayer(YanivPlayer):
         else:
             action_class = self.action_space[action_index]
             action = action_class()
-
-        # if action_index == 0:
-        #     print(f"Player {self.player_id} calls Yaniv: {self.get_points()}")
 
         yaniv.step(action)
         self.previous_actions.append(action)

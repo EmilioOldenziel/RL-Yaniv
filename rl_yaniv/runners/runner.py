@@ -1,12 +1,10 @@
 import time
 
 from rl_yaniv.game.yaniv import Yaniv
-from rl_yaniv.game.player import (
-    RandomPlayer,
-)  # , OptimizedHighCardPlayer, HighThrowPlayer
+from rl_yaniv.game.player import RandomPlayer, HighThrowPlayer, OptimizedRandomPlayer
 
 # player that takes random actions and only throws away one card per turn.
-yaniv = Yaniv(players=[RandomPlayer(player_id=0), RandomPlayer(player_id=1)])
+yaniv = Yaniv(players=[HighThrowPlayer(player_id=0), RandomPlayer(player_id=1), OptimizedRandomPlayer(player_id=2)])
 yaniv.reset()
 
 counter = 0
@@ -21,6 +19,6 @@ while not yaniv.is_over():
 execution_time = time.time() - start_time
 print(f"rounds {counter/execution_time} per second")
 winner, *losers = sorted(yaniv.get_players(), key=lambda p: p.game_score)
-print(f"Winner: {winner.player_id} with {winner.game_score} after {counter} rounds")
+print(f"Winner: Player {winner.player_id} with {winner.game_score} after {counter} rounds")
 for loser in losers:
-    print(f"Loser: {loser.player_id} with {loser.game_score}")
+    print(f"Loser: Player {loser.player_id} with {loser.game_score}")

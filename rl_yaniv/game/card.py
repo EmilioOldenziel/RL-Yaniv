@@ -1,9 +1,28 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from rlcard.games.base import Card
 
 
 class YanivCard(Card):
+
+    SUIT_LIST: List[str] = ["S", "H", "D", "C"]
+    SUITS_SYMBOLS_UTF_8: List[bin] = [0x1F0D1, 0x1F0C1, 0x1F0B1, 0x1F0A1]
+    RANK_LIST: List[str] = [
+        "A",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "T",
+        "J",
+        "Q",
+        "K",
+    ]
+
     CARD_POINTS: Dict[int, str] = {
         "A": 1,
         "2": 2,

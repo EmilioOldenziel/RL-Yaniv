@@ -2,7 +2,7 @@ from ray.rllib.algorithms.ppo import PPOConfig
 from ray.tune.logger import pretty_print
 from ray.rllib.models import ModelCatalog
 
-from rl_yaniv.envs.yaniv import YanivEnv
+from rl_yaniv.envs.yaniv_env import YanivEnv
 
 from models.parametric_actions_model import TorchParametricActionsEmbeddingsModel
 
@@ -23,7 +23,7 @@ config = (  # 1. Configure the algorithm,
     .evaluation(evaluation_num_workers=1)
 )
 
-algo = config.build()  # 2. build the algorithm,
+algo = config.build()  # 2. build the algorithm
 
 for i in range(100):
     # Perform one iteration of training the policy with PPO

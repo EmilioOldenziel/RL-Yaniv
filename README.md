@@ -38,6 +38,9 @@ Moves that a player can take in a turn
 - Pickup a card from the top of the pile
 - End its turn
 
+## Implementation
+The game is implemented in pure Python (no dependencies), it is wrapped to a environment encoding
+
 ## Actions
 ```
 0: Call Yaniv (if 5 point or lower)

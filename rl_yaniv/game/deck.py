@@ -3,7 +3,7 @@ from random import shuffle
 from itertools import product
 
 from rl_yaniv.game.card import YanivCard
-from rl_yaniv.exceptions import DeckException
+from rl_yaniv.game.exceptions import DeckException
 
 
 class Deck:

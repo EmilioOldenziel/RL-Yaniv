@@ -12,12 +12,17 @@ rlcard = "^1.2.0"
 ray = {extras = ["rllib"], version = "^2.9.0"}
 gymnasium = "0.28.1"
 torch = {version = "^2.1.2+cpu", source = "torch-cpu"}
+pettingzoo = "^1.24.2"
 
+
+[[tool.poetry.source]]
+name = "pypi_"
+url = "https://pypi.org/simple/"
+default = true
 
 [[tool.poetry.source]]
 name = "torch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
-default = false
 secondary = true
 
 [build-system]
