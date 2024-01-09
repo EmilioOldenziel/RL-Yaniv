@@ -20,14 +20,6 @@ class RandomHeuristic(Policy):
         episodes=None,
         **kwargs
     ):
-        # actions = []
-        # for x in obs_batch:
-        #     print(x)
-        #     action_mask = x['action_mask']
-        #     valid_action_indices = np.argwhere(action_mask)
-        #     action = np.random.random_sample(valid_action_indices)
-        #     actions.append(action)
-        #
 
         # Working call to _unpack_obs
         unpacked_obs = _unpack_obs(
